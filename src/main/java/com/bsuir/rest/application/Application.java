@@ -11,8 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "com.bsuir.rest")
-@EntityScan(basePackages = "com.bsuir.rest")
 @EnableJpaRepositories(basePackages = "com.bsuir.rest")
+@EntityScan(basePackages = "com.bsuir.rest")
 public class Application {
 
     @Bean

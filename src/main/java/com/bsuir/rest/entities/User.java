@@ -2,13 +2,12 @@ package com.bsuir.rest.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.springframework.context.annotation.Role;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@ToString(exclude = "userInfoList, tokenList")
+@ToString(exclude = "jogInfoList, tokenList")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,7 +28,7 @@ public class User {
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
-    private List<UserInfo> userInfoList;
+    private List<JogInfo> jogInfoList;
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")

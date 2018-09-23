@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
             return new TokenDto(token.getValue());
         }
 
-        throw new IllegalStateException("User not found");
+        return null;
     }
 
     @Override

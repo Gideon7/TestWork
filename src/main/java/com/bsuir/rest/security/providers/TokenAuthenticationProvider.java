@@ -1,6 +1,7 @@
 package com.bsuir.rest.security.providers;
 
 import com.bsuir.rest.entities.Token;
+import com.bsuir.rest.exceptions.NotFoundException;
 import com.bsuir.rest.repositories.TokenRepository;
 import com.bsuir.rest.security.authentications.TokenAuthentication;
 import com.bsuir.rest.security.details.UserDetailsServiceImpl;
@@ -10,7 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TokenAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
@@ -32,7 +35,7 @@ public class TokenAuthenticationProvider implements AuthenticationProvider {
             return tokenAuth;
         }
 
-        throw new IllegalArgumentException("Token not found");
+        throw new NotFoundException();
     }
 
     @Override
