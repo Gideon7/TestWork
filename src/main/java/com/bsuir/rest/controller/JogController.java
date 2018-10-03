@@ -3,7 +3,7 @@ package com.bsuir.rest.controller;
 import com.bsuir.rest.entity.JogInfoEntity;
 import com.bsuir.rest.model.JogInfoForm;
 import com.bsuir.rest.service.JogInfoService;
-import com.bsuir.rest.transfer.TokenDto;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

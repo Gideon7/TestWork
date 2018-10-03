@@ -37,4 +37,11 @@ public class UserEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "userEntity")
     private List<TokenEntity> tokenEntityList;
+
+    @Override
+    public String toString() {
+        return "Username: " + username +
+                " Hash: " + hashPassword +
+                " Role: " + role.toString();
+    }
 }

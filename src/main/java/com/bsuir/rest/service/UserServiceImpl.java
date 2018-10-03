@@ -9,7 +9,6 @@ import com.bsuir.rest.model.RegisterForm;
 import com.bsuir.rest.repository.TokenRepository;
 import com.bsuir.rest.repository.UserRepository;
 import com.bsuir.rest.transfer.TokenDto;
-import com.bsuir.rest.utility.SecurityUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +36,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public TokenDto checkUser(LoginForm loginForm) {
+
         UserEntity userEntity = userRepository.findOneByUsername(loginForm.getUsername());
 
         if(userEntity != null && passwordEncoder.matches(loginForm.getPassword(), userEntity.getHashPassword())) {
@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @PreAuthorize("@securityUtil.isAdmin() or @securityUtil.isUserRole(#registerForm)")
     public boolean registerUser(RegisterForm registerForm) {
+
         UserEntity userEntity = userRepository.findOneByUsername(registerForm.getUsername());
 
         if(userEntity == null) {

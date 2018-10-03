@@ -2,7 +2,7 @@ package com.bsuir.rest.controller;
 
 import com.bsuir.rest.exception.NotFoundException;
 import com.bsuir.rest.model.LoginForm;
-import com.bsuir.rest.model.RegisterForm;
+
 import com.bsuir.rest.service.UserService;
 import com.bsuir.rest.transfer.TokenDto;
 import org.springframework.beans.factory.annotation.Autowired;

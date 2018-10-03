@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @ToString(exclude = "userEntity")
@@ -22,10 +24,10 @@ public class JogInfoEntity {
     private double distance;
 
     @Column(name = "time")
-    private String time;
+    private LocalTime time;
 
     @Column(name = "date")
-    private String date;
+    private LocalDate date;
 
     @JsonIgnore
     @ManyToOne

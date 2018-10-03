@@ -9,6 +9,7 @@ import java.util.List;
 public interface JogInfoRepository extends JpaRepository<JogInfoEntity, Long> {
     List<JogInfoEntity> findAllByUserEntityId(Long userId);
     JogInfoEntity findOneByIdAndUserEntityId(Long id, Long userId);
+    List<JogInfoEntity> findAllByUserEntityIdOrderByDateAsc(Long userId);
 
     @Transactional
     void deleteOneById(Long id);
