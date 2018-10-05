@@ -2,18 +2,25 @@ package com.bsuir.rest.controller;
 
 import com.bsuir.rest.application.Application;
 import com.bsuir.rest.entity.JogInfoEntity;
+import com.bsuir.rest.entity.TokenEntity;
 import com.bsuir.rest.entity.UserEntity;
 import com.bsuir.rest.model.ReportForm;
+import com.bsuir.rest.model.Role;
 import com.bsuir.rest.repository.JogInfoRepository;
+import com.bsuir.rest.repository.TokenRepository;
 import com.bsuir.rest.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,7 +30,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -35,8 +41,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 public class ReportControllerTest {
 
+    private final String USERNAME = "TestUser";
+    private final String PASSWORD = "Password";
+    private final String ROLE = "USER";
+    private final String TOKEN_VALUE = "0123456789";
+
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JogInfoRepository jogInfoRepository;
@@ -44,11 +58,27 @@ public class ReportControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Before
-    public void initDatabase() {
+    @Autowired
+    private TokenRepository tokenRepository;
 
-        Long validUserId = 1L;
-        UserEntity userEntity = userRepository.findOneById(validUserId);
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Before
+    public void init() {
+
+        UserEntity userEntity = UserEntity.builder()
+                .username(USERNAME)
+                .hashPassword(passwordEncoder.encode(PASSWORD))
+                .role(Role.valueOf(ROLE))
+                .build();
+
+        userRepository.save(userEntity);
+
+        tokenRepository.save(TokenEntity.builder()
+                .userEntity(userRepository.findOneByUsername(USERNAME))
+                .value(TOKEN_VALUE)
+                .build());
 
         List<JogInfoEntity> jogInfoEntityList = new ArrayList<>();
 
@@ -69,47 +99,34 @@ public class ReportControllerTest {
     @After
     public void deleteTestRecords() {
 
-        Long validUserId = 1L;
+        Long userId = userRepository.findOneByUsername(USERNAME).getId();
 
-        jogInfoRepository.deleteAllByUserEntityId(validUserId);
+        tokenRepository.deleteOneByUserEntityId(userId);
+        jogInfoRepository.deleteAllByUserEntityId(userId);
+        userRepository.delete(userId);
     }
 
     @Test
     public void reportTestWhereStatusIsOk() throws Exception {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        int numOfReports = 4;
-
-        List<ReportForm> expectedReportFormList = new ArrayList<>();
-
-        expectedReportFormList.add(new ReportForm(0, 23, "2018-06-04", "2018-06-10",
-                BigDecimal.valueOf(4.308), "00:38:33", BigDecimal.valueOf(29.9)));
-
-        expectedReportFormList.add(new ReportForm(1, 24, "2018-06-11", "2018-06-17",
-                BigDecimal.valueOf(14.043), "00:08:50", BigDecimal.valueOf(29.8)));
-
-        expectedReportFormList.add(new ReportForm(2, 23, "2019-06-03", "2019-06-09",
-                BigDecimal.valueOf(9.417), "00:08:08", BigDecimal.valueOf(9.2)));
-
-        expectedReportFormList.add(new ReportForm(3, 32, "2020-08-03", "2020-08-09",
-                BigDecimal.valueOf(15.094), "00:03:32", BigDecimal.valueOf(3.2)));
-
         MvcResult response = mvc.perform(get("/report")
-                .param("userId", "1")
-                .header("tokenValue", "qxYunQAgfy"))
+                .param("userId", userRepository.findOneByUsername(USERNAME).getId().toString())
+                .header("tokenValue", TOKEN_VALUE))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String reportAsString = response.getResponse().getContentAsString();
+        List<ReportForm> reportFormList = objectMapper.readValue(response.getResponse().getContentAsByteArray(),
+                new TypeReference<List<ReportForm>>() {});
 
-        List<ReportForm> reportFormList = objectMapper.readValue(reportAsString, new TypeReference<List<ReportForm>>(){});
-
-        Assert.assertEquals(numOfReports, reportFormList.size());
-        Assertions.assertThat(reportFormList).containsExactly(expectedReportFormList.get(0),
-                                                    expectedReportFormList.get(1),
-                                                    expectedReportFormList.get(2),
-                                                    expectedReportFormList.get(3));
+        Assertions.assertThat(reportFormList).containsExactly(
+                new ReportForm(0, 23, "2018-06-04", "2018-06-10",
+                        BigDecimal.valueOf(4.308), "00:38:33", BigDecimal.valueOf(29.9)),
+                new ReportForm(1, 24, "2018-06-11", "2018-06-17",
+                        BigDecimal.valueOf(14.043), "00:08:50", BigDecimal.valueOf(29.8)),
+                new ReportForm(2, 23, "2019-06-03", "2019-06-09",
+                        BigDecimal.valueOf(9.417), "00:08:08", BigDecimal.valueOf(9.2)),
+                new ReportForm(3, 32, "2020-08-03", "2020-08-09",
+                        BigDecimal.valueOf(15.094), "00:03:32", BigDecimal.valueOf(3.2)));
     }
 
     @Test
