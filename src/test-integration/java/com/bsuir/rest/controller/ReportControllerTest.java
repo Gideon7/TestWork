@@ -3,24 +3,19 @@ package com.bsuir.rest.controller;
 import com.bsuir.rest.application.Application;
 import com.bsuir.rest.entity.JogInfoEntity;
 import com.bsuir.rest.entity.TokenEntity;
-import com.bsuir.rest.entity.UserEntity;
 import com.bsuir.rest.model.ReportForm;
-import com.bsuir.rest.model.Role;
 import com.bsuir.rest.repository.JogInfoRepository;
 import com.bsuir.rest.repository.TokenRepository;
 import com.bsuir.rest.repository.UserRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,24 +34,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {Application.class})
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-public class ReportControllerTest {
-
-    private final String USERNAME = "TestUser";
-    private final String PASSWORD = "Password";
-    private final String ROLE = "USER";
-    private final String TOKEN_VALUE = "0123456789";
+public class ReportControllerTest extends ControllerTestUtility {
 
     @Autowired
     private MockMvc mvc;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private UserRepository userRepository;
 
     @Autowired
     private JogInfoRepository jogInfoRepository;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private TokenRepository tokenRepository;
@@ -67,16 +54,8 @@ public class ReportControllerTest {
     @Before
     public void init() {
 
-        UserEntity userEntity = UserEntity.builder()
-                .username(USERNAME)
-                .hashPassword(passwordEncoder.encode(PASSWORD))
-                .role(Role.valueOf(ROLE))
-                .build();
-
-        userRepository.save(userEntity);
-
         tokenRepository.save(TokenEntity.builder()
-                .userEntity(userRepository.findOneByUsername(USERNAME))
+                .userEntity(userRepository.findOneByUsername(USERNAME_VALID))
                 .value(TOKEN_VALUE)
                 .build());
 
@@ -96,21 +75,11 @@ public class ReportControllerTest {
         jogInfoRepository.save(jogInfoEntityList);
     }
 
-    @After
-    public void deleteTestRecords() {
-
-        Long userId = userRepository.findOneByUsername(USERNAME).getId();
-
-        tokenRepository.deleteOneByUserEntityId(userId);
-        jogInfoRepository.deleteAllByUserEntityId(userId);
-        userRepository.delete(userId);
-    }
-
     @Test
-    public void reportTestWhereStatusIsOk() throws Exception {
+    public void reportControllerTestWhereStatusIsOk() throws Exception {
 
         MvcResult response = mvc.perform(get("/report")
-                .param("userId", userRepository.findOneByUsername(USERNAME).getId().toString())
+                .param("userId", userRepository.findOneByUsername(USERNAME_VALID).getId().toString())
                 .header("tokenValue", TOKEN_VALUE))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -130,7 +99,7 @@ public class ReportControllerTest {
     }
 
     @Test
-    public void reportTestWhereStatusIsForbidden() throws Exception {
+    public void reportControllerTestWhereStatusIsForbidden() throws Exception {
 
         mvc.perform(get("/report")
                 .param("userId", "1"))
@@ -138,7 +107,7 @@ public class ReportControllerTest {
     }
 
     @Test
-    public void reportTestWhereStatusIsBadRequest() throws Exception {
+    public void reportControllerTestWhereStatusIsBadRequest() throws Exception {
 
         mvc.perform(get("/report")
                 .param("userId", "0"))

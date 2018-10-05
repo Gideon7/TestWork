@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportForm {
-    private int reportFormId;
+    private int usersWeek;
     private int weekOfYear;
     private String firstDayOfWeek;
     private String lastDayOfWeek;

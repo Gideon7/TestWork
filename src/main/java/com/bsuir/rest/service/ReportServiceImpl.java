@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.IsoFields;
@@ -67,8 +66,8 @@ public class ReportServiceImpl implements ReportService {
         }
 
         weekMap.forEach((yearAndWeek, jogsOnWeek) -> {
-            int reportId = reportFormList.size();
-            reportFormList.add(createReport(yearAndWeek, jogsOnWeek, reportId));
+            int usersWeek = reportFormList.size();
+            reportFormList.add(createReport(yearAndWeek, jogsOnWeek, usersWeek));
         });
 
         return reportFormList;
@@ -82,7 +81,7 @@ public class ReportServiceImpl implements ReportService {
         LocalDate firstDayOfWeek = firstJogOnWeek.minusDays(firstJogOnWeek.getDayOfWeek().getValue() - 1);
         LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(DIFFERENCE_BETWEEN_WEEK_DAYS);
 
-        reportForm.setReportFormId(reportFormId);
+        reportForm.setUsersWeek(reportFormId);
         reportForm.setWeekOfYear(yearAndWeek.right);
         reportForm.setFirstDayOfWeek(firstDayOfWeek.toString());
         reportForm.setLastDayOfWeek(lastDayOfWeek.toString());

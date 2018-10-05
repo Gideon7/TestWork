@@ -24,6 +24,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
 public class RegisterControllerTest {
 
+    private final String USERNAME = "TestUser";
+    private final String PASSWORD = "Password";
+    private final String ROLE_USER = "USER";
+    private final String ROLE_ADMIN = "ADMIN";
+
     @Autowired
     private MockMvc mvc;
 
@@ -31,12 +36,9 @@ public class RegisterControllerTest {
     private UserRepository userRepository;
 
     @Test
-    public void registrationTestWhereStatusIsOk() throws Exception {
+    public void registerControllerTestWhereStatusIsOk() throws Exception {
 
-        String username = "username";
-        String password = "1111";
-        String role = "USER";
-        RegisterForm registerForm = new RegisterForm(username, password, role);
+        RegisterForm registerForm = new RegisterForm(USERNAME, PASSWORD, ROLE_USER);
 
         Gson gson = new Gson();
         String jsonRegisterForm = gson.toJson(registerForm);
@@ -46,11 +48,13 @@ public class RegisterControllerTest {
                 .content(jsonRegisterForm))
                 .andExpect(status().isOk());
 
-        Assert.assertNotNull(userRepository.findOneByUsername(username));
+        Assert.assertNotNull(userRepository.findOneByUsername(USERNAME));
+
+        userRepository.deleteOneByUsername(USERNAME);
     }
 
     @Test
-    public void registrationTestWhereStatusIsBadRequest() throws Exception {
+    public void registerControllerTestWhereStatusIsBadRequest() throws Exception {
 
         mvc.perform(post("/register")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -58,12 +62,9 @@ public class RegisterControllerTest {
     }
 
     @Test
-    public void registrationTestWhereStatusIsForbidden() throws Exception {
+    public void registerControllerTestWhereStatusIsForbidden() throws Exception {
 
-        String username = "username";
-        String password = "1111";
-        String role = "ADMIN";
-        RegisterForm registerForm = new RegisterForm(username, password, role);
+        RegisterForm registerForm = new RegisterForm(USERNAME, PASSWORD, ROLE_ADMIN);
 
         Gson gson = new Gson();
         String jsonRegisterForm = gson.toJson(registerForm);
