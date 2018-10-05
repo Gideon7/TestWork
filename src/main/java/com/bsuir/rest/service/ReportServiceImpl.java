@@ -5,15 +5,18 @@ import com.bsuir.rest.exception.NotFoundException;
 import com.bsuir.rest.model.ReportForm;
 import com.bsuir.rest.repository.JogInfoRepository;
 import com.bsuir.rest.repository.UserRepository;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.temporal.IsoFields;
+import java.util.*;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -21,6 +24,7 @@ public class ReportServiceImpl implements ReportService {
     private final int METERS_IN_KILOMETER = 1000;
     private final int SECONDS_IN_MINUTE = 60;
     private final int SECONDS_IN_HOUR = 3600;
+    private final int DIFFERENCE_BETWEEN_WEEK_DAYS = 6;
 
     @Autowired
     private UserRepository userRepository;
@@ -45,39 +49,46 @@ public class ReportServiceImpl implements ReportService {
             return new ArrayList<>();
         }
 
-        int weekCounter = 1;
-        JogInfoEntity firstJogOnWeek = jogInfoEntityList.get(0);
-        List<JogInfoEntity> jogsOnWeekList = new ArrayList<>();
         List<ReportForm> reportFormList = new ArrayList<>();
+        Map<ImmutablePair<Integer, Integer>, List<JogInfoEntity>> weekMap = new LinkedHashMap<>();
 
         for(JogInfoEntity currentJogInfoEntity: jogInfoEntityList) {
-            if(Period.between(firstJogOnWeek.getDate(), currentJogInfoEntity.getDate()).getDays() < 7
-                    && jogInfoEntityList.indexOf(currentJogInfoEntity) < jogInfoEntityList.size() - 1) {
-                jogsOnWeekList.add(currentJogInfoEntity);
-            } else {
-                reportFormList.add(createReport(weekCounter, jogsOnWeekList));
+            int currentWeek = currentJogInfoEntity.getDate().get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+            int currentYear = currentJogInfoEntity.getDate().getYear();
 
-                jogsOnWeekList.clear();
-                jogsOnWeekList.add(currentJogInfoEntity);
-                firstJogOnWeek = currentJogInfoEntity;
-                weekCounter++;
+            if(weekMap.get(new ImmutablePair<>(currentYear, currentWeek)) == null) {
+                List<JogInfoEntity> jogsOnWeek = new ArrayList<>();
+                jogsOnWeek.add(currentJogInfoEntity);
+
+                weekMap.put(new ImmutablePair<>(currentYear, currentWeek), jogsOnWeek);
+            } else {
+                weekMap.get(new ImmutablePair<>(currentYear, currentWeek)).add(currentJogInfoEntity);
             }
         }
+
+        weekMap.forEach((yearAndWeek, jogsOnWeek) -> {
+            int reportId = reportFormList.size();
+            reportFormList.add(createReport(yearAndWeek, jogsOnWeek, reportId));
+        });
+
         return reportFormList;
     }
 
-    private ReportForm createReport(int Week, List<JogInfoEntity> jogsOnWeekList) {
+    private ReportForm createReport(ImmutablePair<Integer, Integer> yearAndWeek, List<JogInfoEntity> jogsOnWeekList, int reportFormId) {
 
-        DecimalFormat df = new DecimalFormat("#.###");
         ReportForm reportForm = new ReportForm();
 
-        reportForm.setWeek("Week " + Week + ":" +
-                            " (" + jogsOnWeekList.get(0).getDate().toString() +
-                            "/" + jogsOnWeekList.get(jogsOnWeekList.size() - 1).getDate().toString() + ")");
+        LocalDate firstJogOnWeek = jogsOnWeekList.get(0).getDate();
+        LocalDate firstDayOfWeek = firstJogOnWeek.minusDays(firstJogOnWeek.getDayOfWeek().getValue() - 1);
+        LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(DIFFERENCE_BETWEEN_WEEK_DAYS);
 
-        reportForm.setAverageSpeed("Av. Speed(m/s): " + df.format(calculateAverageSpeed(jogsOnWeekList)));
-        reportForm.setAverageTime("Av. Time: " +  calculateAverageTime(jogsOnWeekList).toString());
-        reportForm.setTotalDistance("Total Distance(km): " + df.format(calculateTotalDistance(jogsOnWeekList)));
+        reportForm.setReportFormId(reportFormId);
+        reportForm.setWeekOfYear(yearAndWeek.right);
+        reportForm.setFirstDayOfWeek(firstDayOfWeek.toString());
+        reportForm.setLastDayOfWeek(lastDayOfWeek.toString());
+        reportForm.setAverageSpeed(BigDecimal.valueOf(calculateAverageSpeed(jogsOnWeekList)).setScale(3, RoundingMode.HALF_UP));
+        reportForm.setAverageTime(calculateAverageTime(jogsOnWeekList).toString());
+        reportForm.setTotalDistance(BigDecimal.valueOf(calculateTotalDistance(jogsOnWeekList)).setScale(1, RoundingMode.HALF_UP));
 
         return reportForm;
     }
@@ -97,8 +108,10 @@ public class ReportServiceImpl implements ReportService {
 
         int hours = (int)averageTimeInSecond / SECONDS_IN_HOUR;
         averageTimeInSecond -= hours * SECONDS_IN_HOUR;
+
         int minuts = (int)averageTimeInSecond / SECONDS_IN_MINUTE;
         averageTimeInSecond -= minuts * SECONDS_IN_MINUTE;
+
         int seconds = (int)averageTimeInSecond;
 
         return LocalTime.of(hours, minuts, seconds);
@@ -129,6 +142,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private int calculateTotalTimeInSeconds(LocalTime totalTime) {
+
         return totalTime.getHour() * SECONDS_IN_HOUR +
                     totalTime.getMinute() * SECONDS_IN_MINUTE +
                     totalTime.getSecond();

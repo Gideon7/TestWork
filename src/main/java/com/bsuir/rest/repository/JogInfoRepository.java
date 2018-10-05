@@ -13,4 +13,7 @@ public interface JogInfoRepository extends JpaRepository<JogInfoEntity, Long> {
 
     @Transactional
     void deleteOneById(Long id);
+
+    @Transactional
+    void deleteAllByUserEntityId(Long userId);
 }

@@ -33,4 +33,11 @@ public class JogInfoEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity userEntity;
+
+    public JogInfoEntity(double distance, LocalTime time, LocalDate date, UserEntity userEntity) {
+        this.distance = distance;
+        this.time = time;
+        this.date = date;
+        this.userEntity = userEntity;
+    }
 }
