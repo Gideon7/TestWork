@@ -22,9 +22,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {Application.class})
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-public class RegisterControllerTest {
+public class RegisterControllerTest extends AbstractControllerTestUtility {
 
-    private final String USERNAME = "TestUser";
+    private final String USERNAME = "User";
     private final String PASSWORD = "Password";
     private final String ROLE_USER = "USER";
     private final String ROLE_ADMIN = "ADMIN";
@@ -49,8 +49,6 @@ public class RegisterControllerTest {
                 .andExpect(status().isOk());
 
         Assert.assertNotNull(userRepository.findOneByUsername(USERNAME));
-
-        userRepository.deleteOneByUsername(USERNAME);
     }
 
     @Test

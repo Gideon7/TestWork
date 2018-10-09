@@ -1,6 +1,5 @@
 package com.bsuir.rest.controller;
 
-import com.bsuir.rest.entity.JogInfoEntity;
 import com.bsuir.rest.model.JogInfoForm;
 import com.bsuir.rest.service.JogInfoService;
 
@@ -16,8 +15,10 @@ public class JogController {
     private JogInfoService jogInfoService;
 
     @GetMapping("/jogs")
-    public List<JogInfoEntity> getJogsInfo(@RequestParam("userId") Long userId) {
-        return jogInfoService.findAllByUserId(userId);
+    public List<JogInfoForm> getJogsInfo(@RequestParam("userId") List<Integer> userId,
+                                           @RequestParam(value = "fromDate", required = false) String fromDateString,
+                                           @RequestParam(value = "toDate", required = false) String toDateString) {
+        return jogInfoService.findAllByIdsAndDate(userId, fromDateString, toDateString);
     }
 
     @PostMapping("/jogs")

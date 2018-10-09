@@ -6,6 +6,7 @@ import com.bsuir.rest.exception.AlreadyExistException;
 import com.bsuir.rest.model.LoginForm;
 import com.bsuir.rest.model.Role;
 import com.bsuir.rest.model.RegisterForm;
+import com.bsuir.rest.model.User;
 import com.bsuir.rest.repository.TokenRepository;
 import com.bsuir.rest.repository.UserRepository;
 import com.bsuir.rest.transfer.TokenDto;
@@ -30,8 +31,8 @@ public class UserServiceImpl implements UserService {
     private TokenRepository tokenRepository;
 
     @Override
-    public List<UserEntity> findAll() {
-        return userRepository.findAll();
+    public List<User> findAll() {
+        return User.from(userRepository.findAll());
     }
 
     @Override

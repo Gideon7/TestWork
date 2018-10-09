@@ -25,13 +25,23 @@ public class JogInfoServiceImpl implements JogInfoService {
 
     @Override
     @PreAuthorize("@securityUtil.isAdminOrResourceOwner(#userId)")
-    public List<JogInfoEntity> findAllByUserId(Long userId) {
+    public List<JogInfoForm> findAllByUserId(Long userId) {
 
         if (userRepository.findOneById(userId) == null) {
             throw new NotFoundException();
         }
 
-        return jogInfoRepository.findAllByUserEntityId(userId);
+        return JogInfoForm.from(jogInfoRepository.findAllByUserEntityId(userId));
+    }
+
+    @Override
+    public List<JogInfoForm> findAllByIdsAndDate(List<Integer> ids, String fromDateString, String toDateString) {
+
+        if(ids.isEmpty()) {
+            throw new NotFoundException();
+        }
+
+        return JogInfoForm.from(jogInfoRepository.findAllByIdsAndDates(ids, fromDateString, toDateString));
     }
 
     @Override

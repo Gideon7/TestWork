@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(classes = {Application.class})
 @AutoConfigureMockMvc
 @TestPropertySource(locations = "classpath:application-integrationtest.properties")
-public class LoginControllerTest extends ControllerTestUtility {
+public class LoginAbstractControllerTest extends AbstractControllerTestUtility {
 
     @Autowired
     private MockMvc mvc;

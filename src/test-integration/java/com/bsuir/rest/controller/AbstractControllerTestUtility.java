@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class ControllerTestUtility {
+public abstract class AbstractControllerTestUtility {
 
     UserEntity userEntity;
     final String USERNAME_VALID = "TestUser";
