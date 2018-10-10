@@ -15,10 +15,11 @@ public class JogController {
     private JogInfoService jogInfoService;
 
     @GetMapping("/jogs")
-    public List<JogInfoForm> getJogsInfo(@RequestParam("userId") List<Integer> userId,
-                                           @RequestParam(value = "fromDate", required = false) String fromDateString,
-                                           @RequestParam(value = "toDate", required = false) String toDateString) {
-        return jogInfoService.findAllByIdsAndDate(userId, fromDateString, toDateString);
+    public List<JogInfoForm> getJogsInfo(@RequestParam("page") int page,
+                                         @RequestParam(value = "userId", required = false) List<Long> userId,
+                                         @RequestParam(value = "fromDate", required = false) String fromDateString,
+                                         @RequestParam(value = "toDate", required = false) String toDateString) {
+        return jogInfoService.findAllByIdsAndDate(page, userId, fromDateString, toDateString);
     }
 
     @PostMapping("/jogs")

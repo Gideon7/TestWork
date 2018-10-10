@@ -19,9 +19,14 @@ public interface JogInfoRepository extends JpaRepository<JogInfoEntity, Long> {
     @Query(value = "SELECT *\n" +
             "FROM jogs_info\n" +
             "WHERE jogs_info.user_id IN (:ids)\n" +
-            "AND ((:fromDate ISNULL) OR (jogs_info.date >= to_date(CAST(:fromDate AS TEXT), 'yyyy-mm-dd')))  \n" +
-            "AND ((:toDate ISNULL) OR (jogs_info.date <= to_date(CAST(:toDate AS TEXT), 'yyyy-mm-dd')))", nativeQuery = true)
-    List<JogInfoEntity> findAllByIdsAndDates(@Param("ids") List<Integer> ids, @Param("fromDate") String fromDate, @Param("toDate") String toDate);
+            "AND ((:fromDate IS NULL) OR (jogs_info.date >= to_date(CAST(:fromDate AS TEXT), 'yyyy-mm-dd')))\n" +
+            "AND ((:toDate IS NULL) OR (jogs_info.date <= to_date(CAST(:toDate AS TEXT), 'yyyy-mm-dd')))\n" +
+            "LIMIT :pageSize OFFSET :shift", nativeQuery = true)
+    List<JogInfoEntity> findAllByIdsAndDates(@Param("ids") List<Long> ids,
+                                             @Param("fromDate") String fromDate,
+                                             @Param("toDate") String toDate,
+                                             @Param("pageSize") int pageSize,
+                                             @Param("shift") int shift);
 
     @Transactional
     void deleteOneById(Long id);

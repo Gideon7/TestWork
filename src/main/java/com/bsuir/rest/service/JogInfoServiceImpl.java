@@ -17,6 +17,8 @@ import java.util.List;
 @Service
 public class JogInfoServiceImpl implements JogInfoService {
 
+    private final int PAGE_SIZE = 3;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -35,13 +37,14 @@ public class JogInfoServiceImpl implements JogInfoService {
     }
 
     @Override
-    public List<JogInfoForm> findAllByIdsAndDate(List<Integer> ids, String fromDateString, String toDateString) {
+    public List<JogInfoForm> findAllByIdsAndDate(int page, List<Long> ids, String fromDateString, String toDateString) {
 
-        if(ids.isEmpty()) {
-            throw new NotFoundException();
+        int shift = (page - 1) * PAGE_SIZE;
+        if(ids == null) {
+            ids = userRepository.findAllId();
         }
 
-        return JogInfoForm.from(jogInfoRepository.findAllByIdsAndDates(ids, fromDateString, toDateString));
+        return JogInfoForm.from(jogInfoRepository.findAllByIdsAndDates(ids, fromDateString, toDateString, PAGE_SIZE, shift));
     }
 
     @Override
