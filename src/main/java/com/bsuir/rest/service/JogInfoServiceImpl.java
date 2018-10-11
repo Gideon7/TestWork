@@ -40,7 +40,8 @@ public class JogInfoServiceImpl implements JogInfoService {
     }
 
     @Override
-    public List<JogInfoForm> findAllByIdsAndDate(int page, int pageSize, List<Long> ids, String fromDateString, String toDateString, String sortDir) {
+    public List<JogInfoForm> findAllByIdsAndDate(int page, int pageSize, List<Long> ids,
+                                                 String fromDateString, String toDateString, String sortDir) {
 
         if(fromDateString != null) {
             DateValidator.validateDateString(fromDateString);
@@ -50,7 +51,8 @@ public class JogInfoServiceImpl implements JogInfoService {
             DateValidator.validateDateString(toDateString);
         }
 
-        Pageable pageable = new PageRequest(page - 1, pageSize, new Sort(sortDir.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC, "date"));
+        Pageable pageable = new PageRequest(page - 1, pageSize, new Sort(sortDir.equals("ASC")
+                ? Sort.Direction.ASC : Sort.Direction.DESC, "date"));
 
         if(ids == null) {
             return JogInfoForm.from(jogInfoRepository.findAllByDates(fromDateString, toDateString, pageable).getContent());

@@ -2,6 +2,7 @@ package com.bsuir.rest.security.provider;
 
 import com.bsuir.rest.entity.TokenEntity;
 import com.bsuir.rest.exception.NotFoundException;
+import com.bsuir.rest.exception.UnauthorizedException;
 import com.bsuir.rest.repository.TokenRepository;
 import com.bsuir.rest.security.authentication.TokenAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class TokenAuthenticationProvider implements AuthenticationProvider {
         TokenEntity tokenEntity = tokenRepository.findOneByValue(tokenAuth.getName());
 
         if(tokenEntity == null) {
-            throw new NotFoundException();
+            throw new UnauthorizedException();
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(tokenEntity.getUserEntity().getUsername());
