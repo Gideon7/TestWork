@@ -16,7 +16,9 @@ public class ReportController {
     private ReportService reportService;
 
     @GetMapping("/report")
-    public List<ReportForm> getReport(@RequestParam("userId") Long userId) {
-        return reportService.getReport(userId);
+    public List<ReportForm> getReport(@RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                                      @RequestParam(value = "pageSize", required = false, defaultValue = "20") int pageSize,
+                                      @RequestParam("userId") Long userId) {
+        return reportService.getReport(page, pageSize, userId);
     }
 }

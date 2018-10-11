@@ -7,6 +7,8 @@ import com.bsuir.rest.repository.JogInfoRepository;
 import com.bsuir.rest.repository.UserRepository;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +35,15 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @PreAuthorize("@securityUtil.isAdminOrResourceOwner(#userId)")
-    public List<ReportForm> getReport(Long userId) {
+    public List<ReportForm> getReport(int page, int pageSize, Long userId) {
 
         if(userRepository.findOneById(userId) == null) {
             throw new NotFoundException();
         }
 
-        return createReportList(jogInfoRepository.findAllByUserEntityIdOrderByDateAsc(userId));
+        Pageable pageable = new PageRequest(page - 1, pageSize);
+
+        return createReportList(jogInfoRepository.findAllByUserEntityIdOrderByDateAsc(userId, pageable));
     }
 
     private List<ReportForm> createReportList(List<JogInfoEntity> jogInfoEntityList) {

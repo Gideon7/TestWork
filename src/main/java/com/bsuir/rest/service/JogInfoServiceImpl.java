@@ -6,7 +6,11 @@ import com.bsuir.rest.exception.NotFoundException;
 import com.bsuir.rest.model.JogInfoForm;
 import com.bsuir.rest.repository.JogInfoRepository;
 import com.bsuir.rest.repository.UserRepository;
+import com.bsuir.rest.utility.DateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +20,6 @@ import java.util.List;
 
 @Service
 public class JogInfoServiceImpl implements JogInfoService {
-
-    private final int PAGE_SIZE = 3;
 
     @Autowired
     private UserRepository userRepository;
@@ -33,18 +35,28 @@ public class JogInfoServiceImpl implements JogInfoService {
             throw new NotFoundException();
         }
 
+
         return JogInfoForm.from(jogInfoRepository.findAllByUserEntityId(userId));
     }
 
     @Override
-    public List<JogInfoForm> findAllByIdsAndDate(int page, List<Long> ids, String fromDateString, String toDateString) {
+    public List<JogInfoForm> findAllByIdsAndDate(int page, int pageSize, List<Long> ids, String fromDateString, String toDateString, String sortDir) {
 
-        int shift = (page - 1) * PAGE_SIZE;
-        if(ids == null) {
-            ids = userRepository.findAllId();
+        if(fromDateString != null) {
+            DateValidator.validateDateString(fromDateString);
         }
 
-        return JogInfoForm.from(jogInfoRepository.findAllByIdsAndDates(ids, fromDateString, toDateString, PAGE_SIZE, shift));
+        if(toDateString != null) {
+            DateValidator.validateDateString(toDateString);
+        }
+
+        Pageable pageable = new PageRequest(page - 1, pageSize, new Sort(sortDir.equals("ASC") ? Sort.Direction.ASC : Sort.Direction.DESC, "date"));
+
+        if(ids == null) {
+            return JogInfoForm.from(jogInfoRepository.findAllByDates(fromDateString, toDateString, pageable).getContent());
+        }
+
+        return JogInfoForm.from(jogInfoRepository.findAllByIdsAndDates(ids, fromDateString, toDateString, pageable).getContent());
     }
 
     @Override
