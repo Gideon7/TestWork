@@ -1,0 +1,25 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+
+  jog-service:
+    image: rest-example-0.1
+    ports:
+      - 8080:8080
+    links:
+      - "db:database"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 6080:8081

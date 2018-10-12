@@ -12,6 +12,7 @@ import com.bsuir.rest.repository.UserRepository;
 import com.bsuir.rest.transfer.TokenDto;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

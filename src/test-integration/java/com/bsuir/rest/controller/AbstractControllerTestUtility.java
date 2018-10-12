@@ -1,14 +1,24 @@
 package com.bsuir.rest.controller;
 
+import com.bsuir.rest.application.Application;
 import com.bsuir.rest.entity.UserEntity;
 import com.bsuir.rest.model.Role;
 import com.bsuir.rest.repository.UserRepository;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {Application.class})
+@AutoConfigureMockMvc
+@ActiveProfiles("integrationtest")
 public abstract class AbstractControllerTestUtility {
 
     UserEntity userEntity;

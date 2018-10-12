@@ -1,29 +1,20 @@
 package com.bsuir.rest.controller;
 
-import com.bsuir.rest.application.Application;
 import com.bsuir.rest.model.LoginForm;
 import com.bsuir.rest.transfer.TokenDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = {Application.class})
-@AutoConfigureMockMvc
-@TestPropertySource(locations = "classpath:application-integrationtest.properties")
+
 public class LoginAbstractControllerTest extends AbstractControllerTestUtility {
 
     @Autowired

@@ -61,7 +61,7 @@ public class JogInfoServiceTest {
         when(jogInfoRepository.findAllByUserEntityId(validUserId))
                                 .thenReturn(Collections.singletonList(expectedJogInfo));
 
-        assertEquals(Collections.singletonList(expectedJogInfo), jogInfoServiceImpl.findAllByUserId(validUserId));
+        assertEquals(Collections.singletonList(JogInfoForm.from(expectedJogInfo)), jogInfoServiceImpl.findAllByUserId(validUserId));
     }
 
     @Test(expected = NotFoundException.class)
